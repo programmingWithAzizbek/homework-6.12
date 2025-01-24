@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, NavLink } from "react-router-dom";
 import Header from "../components/Header";
-import { backendAPI } from "../Axios";
+import { backendAPI } from "../axios";
 
 function ProductsDetails() {
   const [products, setProducts] = useState([]);
