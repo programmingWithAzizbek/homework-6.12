@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, NavLink } from "react-router-dom";
-import Header from "../components/Header";
-import { backendAPI } from "../axios";
+import Header from "../components/Header.jsx";
+import { backendAPI } from "../axios.jsx";
 
 function ProductsDetails() {
   const [products, setProducts] = useState([]);
@@ -12,7 +12,7 @@ function ProductsDetails() {
     backendAPI
       .get(`/products/${id}`)
       .then((response) => {
-        if (response.status == 200 && response?.data?.data) {
+        if (response.status === 200 && response?.data?.data) {
           setProducts(response.data.data);
         }
       })
@@ -20,6 +20,30 @@ function ProductsDetails() {
         console.error(error);
       });
   }, [id]);
+
+  const handleAddToCart = () => {
+    const productToAdd = {
+      id: products.id,
+      title: products.attributes.title,
+      image: products.attributes.image,
+      price: products.attributes.price,
+      amount: amount,
+    };
+
+    const existingCart = JSON.parse(localStorage.getItem("cart")) || [];
+
+    const existingProductIndex = existingCart.findIndex(
+      (item) => item.id === productToAdd.id
+    );
+
+    if (existingProductIndex > -1) {
+      existingCart[existingProductIndex].amount += amount;
+    } else {
+      existingCart.push(productToAdd); // Add product to cart
+    }
+
+    localStorage.setItem("cart", JSON.stringify(existingCart));
+  };
 
   return (
     <>
@@ -75,7 +99,10 @@ function ProductsDetails() {
                   </select>
                 </div>
 
-                <button className="bg-col8 hover:bg-col8hov text-col7 rounded-md px-4 h-12">
+                <button
+                  onClick={handleAddToCart}
+                  className="bg-col8 hover:bg-col8hov text-col7 rounded-md px-4 h-12"
+                >
                   Add to Bag
                 </button>
               </div>

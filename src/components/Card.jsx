@@ -10,8 +10,11 @@ function Card({ id, image, price, title }) {
   }
 
   return (
-    <div className="max-w-cardsmw w-full shadow-xl bg-white rounded-2xl cursor-pointer">
-      <div onClick={() => handleCardClick(id)} className="px-4 pt-4 w-full">
+    <div
+      onClick={() => handleCardClick(id)}
+      className="max-w-cardsmw w-full shadow-xl bg-white rounded-2xl cursor-pointer"
+    >
+      <div className="px-4 pt-4 w-full">
         <img
           src={image}
           alt={title}

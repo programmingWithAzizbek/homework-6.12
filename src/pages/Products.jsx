@@ -1,14 +1,21 @@
 import React, { useEffect, useState } from "react";
-import { NavLink } from "react-router-dom";
-import Header from "../components/Header";
-import Card from "../components/Card";
-import { backendAPI } from "../Axios";
+import { backendAPI } from "../axios.jsx";
+import Card from "../components/Card.jsx";
+import Header from "../components/Header.jsx";
 
 function Products() {
   const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+
+  const [searchQuery, setSearchQuery] = useState("");
+  const [category, setCategory] = useState("");
+  const [company, setCompany] = useState("");
+  const [sortBy, setSortBy] = useState("a-z");
+  const [price, setPrice] = useState(100000);
+  const [freeShipping, setFreeShipping] = useState(false);
 
   useEffect(() => {
+    setLoading(true);
     backendAPI
       .get("/products")
       .then((response) => {
@@ -22,12 +29,41 @@ function Products() {
       .finally(() => setLoading(false));
   }, []);
 
+  const handleSearch = (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    backendAPI
+      .get("/products", {
+        params: {
+          search: searchQuery,
+          category: category,
+          company: company,
+          sortBy: sortBy,
+          price: price,
+          freeShipping: freeShipping,
+        },
+      })
+      .then((response) => {
+        if (response?.data?.data) {
+          setProducts(response.data.data);
+        }
+      })
+      .catch((error) => {
+        console.error(error.message);
+      })
+      .finally(() => setLoading(false));
+  };
+
   return (
     <>
       <Header />
       <section>
         <div className="max-w-6xl mx-auto px-8 py-20">
-          <form className="bg-col2 rounded-md px-8 py-4 grid gap-x-4 gap-y-8 grid-cols-4 items-center">
+          <form
+            className="bg-col2 rounded-md px-8 py-4 grid gap-x-4 gap-y-8 grid-cols-4 items-center"
+            onSubmit={handleSearch}
+          >
             <div className="w-btn2w">
               <label
                 htmlFor="search"
@@ -38,6 +74,8 @@ function Products() {
               <input
                 id="search"
                 type="search"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full h-8 px-3 rounded-lg border text-col3 text-base font-normal"
               />
             </div>
@@ -50,6 +88,8 @@ function Products() {
               </label>
               <select
                 id="category"
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
                 className="w-full h-8 px-3 rounded-lg border text-col3 text-sm font-semibold pl-2"
               >
                 <option value="">all</option>
@@ -69,6 +109,8 @@ function Products() {
               </label>
               <select
                 id="company"
+                value={company}
+                onChange={(e) => setCompany(e.target.value)}
                 className="w-full h-8 px-3 rounded-lg border text-col3 text-sm font-semibold pl-2"
               >
                 <option value="">all</option>
@@ -88,6 +130,8 @@ function Products() {
               </label>
               <select
                 id="sortBy"
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
                 className="w-full h-8 px-3 rounded-lg border text-col3 text-sm font-semibold pl-2"
               >
                 <option value="a-z">a-z</option>
@@ -102,7 +146,7 @@ function Products() {
                 className="w-full h-9 text-sm font-normal text-col3 px-1 py-2 flex justify-between items-center"
               >
                 <span>Select Price</span>
-                <span>$1,000.00</span>
+                <span>{`$${price.toLocaleString()}`}</span>{" "}
               </label>
               <input
                 className="cursor-pointer focus:outline-none h-5 w-full"
@@ -111,7 +155,8 @@ function Products() {
                 min={0}
                 max={100000}
                 step={1000}
-                value={100000}
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
               />
             </div>
             <div className="w-btn2w flex flex-col items-center">
@@ -123,8 +168,11 @@ function Products() {
               </label>
               <input
                 type="checkbox"
-                name="shipping"
-                className="w-5 h-5 rounded-lg appearance-none border border-col6 cursor-pointer"
+                checked={freeShipping}
+                onChange={(e) => setFreeShipping(e.target.checked)}
+                className={`w-5 h-5 rounded-lg appearance-none border border-col6 cursor-pointer ${
+                  freeShipping ? "bg-col3" : ""
+                }`}
               />
             </div>
             <div className="w-btn2w">
@@ -138,7 +186,15 @@ function Products() {
 
             <div className="w-btn2w">
               <button
-                type="submit"
+                type="button"
+                onClick={() => {
+                  setSearchQuery("");
+                  setCategory("");
+                  setCompany("");
+                  setSortBy("a-z");
+                  setPrice(100000);
+                  setFreeShipping(false);
+                }}
                 className="bg-col5 text-col4 rounded-lg px-3 w-full h-8"
               >
                 RESET
@@ -147,7 +203,9 @@ function Products() {
           </form>
 
           <div className="flex justify-between items-center mt-8 border-b border-base-300 pb-5">
-            <h4 className="font-medium text-base text-col3">22 products</h4>
+            <h4 className="font-medium text-base text-col3">
+              {products.length} products
+            </h4>
             <div className="flex items-center gap-x-2">
               <button
                 className="bg-col3 hover:bg-col3hov text-col2 w-8 h-8 rounded-full flex justify-center items-center"
