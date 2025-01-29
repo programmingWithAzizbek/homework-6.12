@@ -27,19 +27,20 @@ function ProductsDetails() {
       title: products.attributes.title,
       image: products.attributes.image,
       price: products.attributes.price,
+      company: products.attributes.company,
       amount: amount,
     };
 
     const existingCart = JSON.parse(localStorage.getItem("cart")) || [];
 
     const existingProductIndex = existingCart.findIndex(
-      (item) => item.id === productToAdd.id
+      (item) => item.id == productToAdd.id
     );
 
     if (existingProductIndex > -1) {
       existingCart[existingProductIndex].amount += amount;
     } else {
-      existingCart.push(productToAdd); // Add product to cart
+      existingCart.push(productToAdd);
     }
 
     localStorage.setItem("cart", JSON.stringify(existingCart));
@@ -65,7 +66,7 @@ function ProductsDetails() {
                   {products.attributes.title}
                 </h2>
                 <h4 className="text-xl font-bold text-col1 mt-2">
-                  ${products.attributes.company}
+                  {products.attributes.company}
                 </h4>
                 <p className="mt-3 text-xl font-normal text-col3">
                   ${products.attributes.price}
